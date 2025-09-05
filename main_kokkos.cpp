@@ -11,6 +11,11 @@
 
 using simd_double = Kokkos::Experimental::simd<double>;
 
+/**
+ * Main program for benchmarking the SIMD version of the ggg kernel.
+ * This version uses SIMD for the main loop and processes multiple elements
+ * 
+**/
 int main(int argc, char *argv[])
 {
 #if defined(KOKKOS_ARCH_AVX512XEON)

@@ -5,13 +5,13 @@ include(FetchContent)
 include(EnableKokkos.cmake)
 
 
-add_executable(main main.cpp)
-add_executable(main_ggg main_ggg.cpp)
-add_executable(main_ggg_hw main_ggg_hw.cpp)
+add_executable(main_serial main_serial.cpp)
+add_executable(main_kokkos main_kokkos.cpp)
+add_executable(main_hw main_hw.cpp)
 
-target_link_libraries(main PRIVATE Kokkos::kokkos hwy::hwy)
-target_link_libraries(main_ggg PRIVATE Kokkos::kokkos hwy::hwy)
-target_link_libraries(main_ggg_hw PRIVATE Kokkos::kokkos hwy::hwy)
+target_link_libraries(main_serial PRIVATE Kokkos::kokkos hwy::hwy)
+target_link_libraries(main_kokkos PRIVATE Kokkos::kokkos hwy::hwy)
+target_link_libraries(main_hw PRIVATE Kokkos::kokkos hwy::hwy)
 
 if (KOKKOS_ARCH_AVX512XEON)
   message(STATUS "✅ KOKKOS_ARCH_AVX512XEON enabled")

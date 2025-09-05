@@ -8,6 +8,14 @@
 #include <iomanip>
 #include <string>
 
+/**
+ * Main program for benchmarking the serial version of the ggg kernel.
+ *
+ * This version does not use SIMD and processes one element at a time.
+ * You can switch the function evaluate_ggg_vertex_kernel_unrolled_single_value
+ * with evaluate_ggg_vertex_kernel to compare the unrolled version with the
+ * non-unrolled version.
+ */
 int main(int argc, char *argv[])
 {
     Kokkos::initialize(argc, argv);
