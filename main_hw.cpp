@@ -71,9 +71,7 @@ int main(int argc, char *argv[])
                 evt.reset_arrays();
                 auto start = std::chrono::high_resolution_clock::now();
                 for (size_t idx = 0; idx < n; idx += Lanes(d))
-                {
                     evaluate_ggg_vertex_kernel_highway(evt, idx);
-                };
                 Kokkos::fence();
                 auto end = std::chrono::high_resolution_clock::now();
                 duration = duration + (end - start);

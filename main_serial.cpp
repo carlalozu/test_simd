@@ -44,24 +44,6 @@ int main(int argc, char *argv[])
         std::cout << "Time taken for filling arrays: " << duration_init.count() << " seconds" << std::endl;
         Kokkos::fence();
 
-        std::cout << "Processing " << n << " serial elements unrolled kernel." << std::endl;
-        std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
-        for (int i = 0; i < reps; i++)
-        {
-            evt.reset_arrays();
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t idx = 0; idx < n; idx++)
-            {
-                evaluate_ggg_vertex_kernel_unrolled_single_value(evt, idx);
-            };
-            Kokkos::fence();
-            auto end = std::chrono::high_resolution_clock::now();
-            duration = duration + (end - start);
-            std::cout << "  Completed repetition: " << i << std::endl;
-        }
-        std::cout << "Time taken for serial abstract kernel: " << duration.count() / reps << " seconds" << std::endl;
-        Kokkos::fence();
-
         std::cout << "Processing " << n << " serial elements regular kernel." << std::endl;
         std::chrono::duration<double> duration_r = std::chrono::duration<double>::zero();
         for (int i = 0; i < reps; i++)
@@ -69,15 +51,29 @@ int main(int argc, char *argv[])
             evt.reset_arrays();
             auto start_r = std::chrono::high_resolution_clock::now();
             for (size_t idx = 0; idx < n; idx++)
-            {
                 evaluate_ggg_vertex_kernel(evt, idx);
-            };
             Kokkos::fence();
             auto end_r = std::chrono::high_resolution_clock::now();
             duration_r = duration_r + (end_r - start_r);
             std::cout << "  Completed repetition: " << i << std::endl;
         }
-        std::cout << "Time taken for serial unrolled kernel: " << duration_r.count() / reps << " seconds" << std::endl;
+        std::cout << "Time taken for serial abstract kernel: " << duration_r.count() / reps << " seconds" << std::endl;
+        Kokkos::fence();
+
+        std::cout << "Processing " << n << " serial elements unrolled kernel." << std::endl;
+        std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
+        for (int i = 0; i < reps; i++)
+        {
+            evt.reset_arrays();
+            auto start = std::chrono::high_resolution_clock::now();
+            for (size_t idx = 0; idx < n; idx++)
+                evaluate_ggg_vertex_kernel_unrolled_single_value(evt, idx);
+            Kokkos::fence();
+            auto end = std::chrono::high_resolution_clock::now();
+            duration = duration + (end - start);
+            std::cout << "  Completed repetition: " << i << std::endl;
+        }
+        std::cout << "Time taken for serial unrolled kernel: " << duration.count() / reps << " seconds" << std::endl;
         Kokkos::fence();
 
         // Print some results

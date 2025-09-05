@@ -9,7 +9,7 @@ export HIGHWAY_OPTIONS="-DHWY_COMPILE_ONLY_SCALAR=1"
 
 # # AVX2
 # export KOKKOS_OPTIONS="-DKOKKOS_ARCH_AVX2=ON -DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Kokkos=ON"
-# export CMAKE_CXX_FLAGS="-mavx2 -mno-avx512f -mno-avx512cd -mno-avx512er -mno-avx512pf -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -mfma"
+# export CMAKE_CXX_FLAGS="-mavx2 -mno-avx512f -mno-avx512cd -mno-avx512er -mno-avx512pf -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
 
 # # AVX512
 # export KOKKOS_OPTIONS="-DKOKKOS_ARCH_AVX512XEON=ON -DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF"
@@ -26,10 +26,10 @@ cmake --build build -j
 # Run
 echo 
 echo SERIAL
-./build/main_serial 20
+./build/main_serial 20 5
 echo 
 echo KOKKOS
-./build/main_kokkos 20
+./build/main_kokkos 20 5
 echo
 echo HIGHWAY
-./build/main_hw 20
+./build/main_hw 20 5
