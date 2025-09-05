@@ -48,7 +48,7 @@ KOKKOS_INLINE_FUNCTION void evaluate_ggg_vertex_kernel(Evt evt, int i)
   CVec4 jd {evt.internal_c(i+16)};
   evt.set_internal_c(i, (jd + jc));
 };
-KOKKOS_INLINE_FUNCTION void evaluate_ggg_vertex_kernel_unrolled_int(const Evt& evt, int i)
+KOKKOS_INLINE_FUNCTION void evaluate_ggg_vertex_kernel_unrolled_single_value(const Evt& evt, int i)
 {
     // CVec4 ja {evt.internal_c(i)};
     double ja0_real = evt._c0r(i);
