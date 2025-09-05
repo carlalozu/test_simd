@@ -24,6 +24,6 @@ cmake -S . -B build -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS $HIGHWAY_OPTIONS" $KOKKO
 cmake --build build -j
 
 # Run
-# time ./build/main_serial 22
-# time ./build/main_kokkos 22
-time ./build/main_hw 22
+time ./build/main_serial 20
+time ./build/main_kokkos 20
+time ./build/main_hw 20

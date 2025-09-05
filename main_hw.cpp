@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
         // take power of 2 from command line or default to 2^5
         int p = 5;
         if (argc > 1)
-        p = std::atoi(argv[1]);
+            p = std::atoi(argv[1]);
         long int n = 1 << p;
         std::cout << "Total elements: 2^" << p << ": " << n << std::endl;
-        
+
         // take number of repetitions from command line or default to 5
         const int reps = 5;
         if (argc > 2)
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         // add padding to ensure loads in the kernel are coming from different
         // places in the array
         Evt evt(n + 8 * 3);
-        
+
         std::cout << "Initializing arrays..." << std::endl;
         auto start_init = std::chrono::high_resolution_clock::now();
         evt.reset_arrays();
@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-
         if (num_groups > 0)
         {
             std::cout << "SIMD groups: " << num_groups << std::endl;
@@ -67,10 +66,12 @@ int main(int argc, char *argv[])
             std::cout << "Running SIMD operations with " << Lanes(d) << " lanes." << std::endl;
 
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
-            for(int i=0;i<reps;i++){
+            for (int i = 0; i < reps; i++)
+            {
                 evt.reset_arrays();
                 auto start = std::chrono::high_resolution_clock::now();
-                for (size_t idx = 0; idx < n; idx += Lanes(d)){
+                for (size_t idx = 0; idx < n; idx += Lanes(d))
+                {
                     evaluate_ggg_vertex_kernel_highway(evt, idx);
                 };
                 Kokkos::fence();
@@ -78,15 +79,15 @@ int main(int argc, char *argv[])
                 duration = duration + (end - start);
                 std::cout << "Completed repetition: " << i << std::endl;
             }
-            std::cout << "Time taken for SIMD loop: " << duration.count()/reps << " seconds" << std::endl;
+            std::cout << "Time taken for SIMD loop: " << duration.count() / reps << " seconds" << std::endl;
             Kokkos::fence();
         }
 
         // Print some results
-        std::cout << "Array results (last 16): ";
+        std::cout << "Array results (first 16): ";
         for (int i = 0; i < 16; ++i)
         {
-            std::cout << "(" << evt._c0r(n-16-i) << "," << evt._c0i(n-16-i) << "), ";
+            std::cout << "(" << evt._c0r(i) << "," << evt._c0i(i) << "), ";
         }
         std::cout << std::endl;
     }

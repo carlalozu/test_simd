@@ -14,8 +14,8 @@ using simd_double = Kokkos::Experimental::simd<double>;
 /**
  * Main program for benchmarking the SIMD version of the ggg kernel.
  * This version uses SIMD for the main loop and processes multiple elements
- * 
-**/
+ *
+ **/
 int main(int argc, char *argv[])
 {
 #if defined(KOKKOS_ARCH_AVX512XEON)
@@ -30,10 +30,10 @@ int main(int argc, char *argv[])
         // take power of 2 from command line or default to 2^5
         int p = 5;
         if (argc > 1)
-        p = std::atoi(argv[1]);
+            p = std::atoi(argv[1]);
         long int n = 1 << p;
         std::cout << "Total elements: 2^" << p << ": " << n << std::endl;
-        
+
         // take number of repetitions from command line or default to 5
         const int reps = 5;
         if (argc > 2)
@@ -53,19 +53,19 @@ int main(int argc, char *argv[])
         Kokkos::fence();
 
         int LANES = simd_double::size();
-        if (LANES <= 1)
-        {
-            std::cerr << "Error: SIMD lanes is less than or equal to 1. Exiting." << std::endl;
-            return 1;
-        }
 
         const int num_groups = n / LANES;
         int remaining = n % LANES;
+        // assert that remining is zero for now
+        if (remaining != 0)
+        {
+            std::cout << "Error: number of elements must be multiple of the SIMD width for now: " << LANES << std::endl;
+            return -1;
+        }
 
-        if (LANES > 1 && num_groups > 0)
+        if (num_groups > 0)
         {
             std::cout << "SIMD groups: " << num_groups << std::endl;
-            std::cout << "Remaining elements: " << remaining << std::endl;
             tag_type tag{};
 
             std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
@@ -85,26 +85,7 @@ int main(int argc, char *argv[])
             std::cout << "Time taken for SIMD loop: " << duration.count() / reps << " seconds" << std::endl;
             Kokkos::fence();
         }
-        if (remaining > 0)
-        {
-            // Handle remaining elements if any
-            std::cout << "Processing " << remaining << " serial elements not unrolled." << std::endl;
-            std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
-            for (int i = 0; i < reps; i++)
-            {
-                evt.reset_arrays();
-                auto start = std::chrono::high_resolution_clock::now();
-                Kokkos::parallel_for("remaining_elements", remaining, KOKKOS_LAMBDA(int i) {
-                    const int idx = num_groups * LANES + i;
-                    evaluate_ggg_vertex_kernel_unrolled_single_value(evt, idx); });
-                auto end = std::chrono::high_resolution_clock::now();
-                duration = duration + (end - start);
-                std::cout << "Completed repetition: " << i << std::endl;
-            }
 
-            std::cout << "Time taken for serial loop: " << duration.count() / reps << " seconds" << std::endl;
-            Kokkos::fence();
-        }
         // Print some results
         std::cout << "Array results (first 16): ";
         for (int i = 0; i < 16; ++i)
