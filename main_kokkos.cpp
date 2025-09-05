@@ -27,15 +27,22 @@ int main(int argc, char *argv[])
 #endif
     Kokkos::initialize(argc, argv);
     {
-        // take n from command line or default to 1 million
-        int p = 3;
+        // take power of 2 from command line or default to 2^5
+        int p = 5;
         if (argc > 1)
-            p = std::atoi(argv[1]);
+        p = std::atoi(argv[1]);
         long int n = 1 << p;
         std::cout << "Total elements: 2^" << p << ": " << n << std::endl;
+        
+        // take number of repetitions from command line or default to 5
+        const int reps = 5;
+        if (argc > 2)
+            p = std::atoi(argv[2]);
+        std::cout << "Repetitions: " << reps << std::endl;
 
-        // Initialize arrays, reshape views to n
-        Evt evt(n + 16);
+        // add padding to ensure loads in the kernel are coming from different
+        // places in the array
+        Evt evt(n + 8 * 3);
 
         std::cout << "Initializing arrays..." << std::endl;
         auto start_init = std::chrono::high_resolution_clock::now();
@@ -45,16 +52,15 @@ int main(int argc, char *argv[])
         std::cout << "Time taken for filling arrays: " << duration_init.count() << " seconds" << std::endl;
         Kokkos::fence();
 
-        const int reps = 5;
-
         int LANES = simd_double::size();
+        if (LANES <= 1)
+        {
+            std::cerr << "Error: SIMD lanes is less than or equal to 1. Exiting." << std::endl;
+            return 1;
+        }
+
         const int num_groups = n / LANES;
         int remaining = n % LANES;
-        if (LANES == 1)
-        {
-            LANES = 0;     // no SIMD, all elements to be processed in serial mode
-            remaining = n; // all elements to be processed in serial mode
-        }
 
         if (LANES > 1 && num_groups > 0)
         {
@@ -63,7 +69,6 @@ int main(int argc, char *argv[])
             tag_type tag{};
 
             std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
-            // SIMD operations on arrays
 
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
             for (int i = 0; i < reps; i++)
@@ -82,8 +87,8 @@ int main(int argc, char *argv[])
         }
         if (remaining > 0)
         {
-            std::cout << "Processing " << remaining << " serial elements not unrolled." << std::endl;
             // Handle remaining elements if any
+            std::cout << "Processing " << remaining << " serial elements not unrolled." << std::endl;
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
             for (int i = 0; i < reps; i++)
             {

@@ -1,4 +1,3 @@
-/* Serial version of the ggg kernel */
 #include <iostream>
 #include <cstdlib>
 #include <Kokkos_Core.hpp>
@@ -23,10 +22,18 @@ int main(int argc, char *argv[])
         // take power of 2 from command line or default to 2^5
         int p = 5;
         if (argc > 1)
-            p = std::atoi(argv[1]);
+        p = std::atoi(argv[1]);
         long int n = 1 << p;
         std::cout << "Total elements: 2^" << p << ": " << n << std::endl;
+        
+        // take number of repetitions from command line or default to 5
+        const int reps = 5;
+        if (argc > 2)
+            p = std::atoi(argv[2]);
+        std::cout << "Repetitions: " << reps << std::endl;
 
+        // add padding to ensure loads in the kernel are coming from different
+        // places in the array
         Evt evt(n + 8 * 3);
 
         std::cout << "Initializing arrays..." << std::endl;
@@ -37,10 +44,7 @@ int main(int argc, char *argv[])
         std::cout << "Time taken for filling arrays: " << duration_init.count() << " seconds" << std::endl;
         Kokkos::fence();
 
-        const int reps = 5;
-
         std::cout << "Processing " << n << " serial elements unrolled kernel." << std::endl;
-        // Handle remaining elements if any
         std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
         for (int i = 0; i < reps; i++)
         {
