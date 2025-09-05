@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
         std::cout << "Total elements: 2^" << p << ": " << n << std::endl;
 
         // Initialize arrays, reshape views to n
-        Evt evt(n + 16);
-
+        Evt evt(n+8*3);
+        
         std::cout << "Initializing arrays..." << std::endl;
         auto start_init = std::chrono::high_resolution_clock::now();
         evt.reset_arrays();
@@ -42,64 +42,59 @@ int main(int argc, char *argv[])
 
         const int reps = 5;
 
-        int LANES = simd_double::size();
+        int LANES = Lanes(d);
         const int num_groups = n / LANES;
         int remaining = n % LANES;
-        if (LANES == 1)
-        {
-            LANES = 0;     // no SIMD, all elements to be processed in serial mode
-            remaining = n; // all elements to be processed in serial mode
-        }
 
-        if (LANES > 1 && num_groups > 0)
+        if (num_groups > 0)
         {
             std::cout << "SIMD groups: " << num_groups << std::endl;
             std::cout << "Remaining elements: " << remaining << std::endl;
             tag_type tag{};
 
-            std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
-            // SIMD operations on arrays
+            const hn::ScalableTag<uint64_t> d;
+            std::cout << "Running SIMD operations with " << Lanes(d) << " lanes." << std::endl;
 
+            // time it
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
-            for (int i = 0; i < reps; i++)
-            {
+            for(int i=0;i<reps;i++){
                 evt.reset_arrays();
                 auto start = std::chrono::high_resolution_clock::now();
-                Kokkos::parallel_for("simd_operations", Kokkos::RangePolicy<>(0, num_groups), KOKKOS_LAMBDA(int simd_group) {
-                    const int idx = simd_group * LANES;
-                    evaluate_ggg_vertex_kernel_unrolled(evt, idx); });
+                for (size_t idx = 0; idx < n; idx += Lanes(d)){
+                    evaluate_ggg_vertex_kernel_highway(evt, idx);
+                };
+                Kokkos::fence();
                 auto end = std::chrono::high_resolution_clock::now();
                 duration = duration + (end - start);
                 std::cout << "Completed repetition: " << i << std::endl;
             }
-            std::cout << "Time taken for SIMD loop: " << duration.count() / reps << " seconds" << std::endl;
+            std::cout << "Time taken for SIMD loop: " << duration.count()/reps << " seconds" << std::endl;
             Kokkos::fence();
         }
-        if (remaining > 0)
+        if (remaining > 0) // TODO: check if necessary
         {
             std::cout << "Processing " << remaining << " serial elements not unrolled." << std::endl;
             // Handle remaining elements if any
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
-            for (int i = 0; i < reps; i++)
-            {
+            for(int i=0;i<reps;i++){
                 evt.reset_arrays();
                 auto start = std::chrono::high_resolution_clock::now();
-                Kokkos::parallel_for("remaining_elements", remaining, KOKKOS_LAMBDA(int i) {
-                    const int idx = num_groups * LANES + i;
-                    evaluate_ggg_vertex_kernel_unrolled_single_value(evt, idx); });
+                for (size_t idx = 0; idx < n; idx ++){
+                    evaluate_ggg_vertex_kernel_unrolled_single_value(evt, idx);
+                };
+                Kokkos::fence();
                 auto end = std::chrono::high_resolution_clock::now();
                 duration = duration + (end - start);
                 std::cout << "Completed repetition: " << i << std::endl;
-            }
-
-            std::cout << "Time taken for serial loop: " << duration.count() / reps << " seconds" << std::endl;
+            }   
+            std::cout << "Time taken for serial loop: " << duration.count()/reps << " seconds" << std::endl;
             Kokkos::fence();
         }
         // Print some results
-        std::cout << "Array results (first 16): ";
+        std::cout << "Array results (last 16): ";
         for (int i = 0; i < 16; ++i)
         {
-            std::cout << "(" << evt._c0r(i) << "," << evt._c0i(i) << "), ";
+            std::cout << "(" << evt._c0r(n-16-i) << "," << evt._c0i(n-16-i) << "), ";
         }
         std::cout << std::endl;
     }

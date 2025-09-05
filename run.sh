@@ -1,6 +1,7 @@
-# SERIAL
-export KOKKOS_OPTIONS="-DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF"
+# # SERIAL
+export KOKKOS_OPTIONS="-DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF  -DCMAKE_DISABLE_FIND_PACKAGE_Kokkos=ON"
 export CMAKE_CXX_FLAGS="-fno-tree-vectorize -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
+export HIGHWAY_OPTIONS="-DHWY_COMPILE_ONLY_SCALAR=1"
 
 # # NEON
 # export KOKKOS_OPTIONS="-DKOKKOS_ARCH_ARM_NEON=ON -DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Kokkos=ON"
@@ -18,10 +19,11 @@ export CMAKE_CXX_FLAGS="-fno-tree-vectorize -fno-omit-frame-pointer -mno-omit-le
 # Compile
 echo $KOKKOS_OPTIONS
 echo $CMAKE_CXX_FLAGS
-cmake -S . -B build -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" $KOKKOS_OPTIONS --fresh 
+echo $HIGHWAY_OPTIONS
+cmake -S . -B build -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS $HIGHWAY_OPTIONS" $KOKKOS_OPTIONS --fresh 
 cmake --build build -j
 
 # Run
-# time ./build/main 20
-time ./build/main_ggg 22
-# time ./build/main_views 30
+# time ./build/main 22
+# time ./build/main_ggg 22
+time ./build/main_ggg_hw 22

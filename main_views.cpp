@@ -1,4 +1,4 @@
-
+/* Tentative code for turning array of doubles into simd values */
 #include <iostream>
 #include <cstdlib>
 #include <Kokkos_Core.hpp>
