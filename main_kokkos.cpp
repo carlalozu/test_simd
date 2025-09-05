@@ -53,8 +53,11 @@ int main(int argc, char *argv[])
         Kokkos::fence();
 
         int LANES = simd_double::size();
+        std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
+        tag_type tag{};
 
         const int num_groups = n / LANES;
+        std::cout << "SIMD groups: " << num_groups << std::endl;
         int remaining = n % LANES;
         // assert that remining is zero for now
         if (remaining != 0)
@@ -65,24 +68,39 @@ int main(int argc, char *argv[])
 
         if (num_groups > 0)
         {
-            std::cout << "SIMD groups: " << num_groups << std::endl;
-            tag_type tag{};
+            std::cout << "Processing abstract kernel (Vec4 & CVec4)." << std::endl;
+            std::chrono::duration<double> duration_r = std::chrono::duration<double>::zero();
+            for (int i = 0; i < reps; i++)
+            {
+                evt.reset_arrays();
+                auto start_r = std::chrono::high_resolution_clock::now();
+                Kokkos::parallel_for("simd_operations", Kokkos::RangePolicy<>(0, num_groups), KOKKOS_LAMBDA(int simd_group) {
+                    const int idx = simd_group * LANES;
+                    evaluate_ggg_vertex_kernel_v(evt, idx); });
+                auto end_r = std::chrono::high_resolution_clock::now();
+                duration_r = duration_r + (end_r - start_r);
+                std::cout << "  Completed repetition: " << i << std::endl;
+            }
+            std::cout << "Time taken for SIMD abstract kernel: " << duration_r.count() / reps << " seconds" << std::endl;
+            Kokkos::fence();
+        }
 
-            std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
-
+        if (num_groups > 0)
+        {
+            std::cout << "Processing unrolled kernel." << std::endl;
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
             for (int i = 0; i < reps; i++)
             {
                 evt.reset_arrays();
                 auto start = std::chrono::high_resolution_clock::now();
-                Kokkos::parallel_for("simd_operations", Kokkos::RangePolicy<>(0, num_groups), KOKKOS_LAMBDA(int simd_group) {
+                Kokkos::parallel_for("simd_operations_unrolled", Kokkos::RangePolicy<>(0, num_groups), KOKKOS_LAMBDA(int simd_group) {
                     const int idx = simd_group * LANES;
                     evaluate_ggg_vertex_kernel_unrolled(evt, idx); });
                 auto end = std::chrono::high_resolution_clock::now();
                 duration = duration + (end - start);
-                std::cout << "Completed repetition: " << i << std::endl;
+                std::cout << "  Completed repetition: " << i << std::endl;
             }
-            std::cout << "Time taken for SIMD loop: " << duration.count() / reps << " seconds" << std::endl;
+            std::cout << "Time taken for SIMD unrolled kernel: " << duration.count() / reps << " seconds" << std::endl;
             Kokkos::fence();
         }
 

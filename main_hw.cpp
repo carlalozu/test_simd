@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
                 Kokkos::fence();
                 auto end = std::chrono::high_resolution_clock::now();
                 duration = duration + (end - start);
-                std::cout << "Completed repetition: " << i << std::endl;
+                std::cout << "  Completed repetition: " << i << std::endl;
             }
             std::cout << "Time taken for SIMD loop: " << duration.count() / reps << " seconds" << std::endl;
             Kokkos::fence();

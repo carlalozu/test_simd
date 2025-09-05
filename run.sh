@@ -1,4 +1,4 @@
-# # SERIAL
+# SERIAL
 export KOKKOS_OPTIONS="-DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF  -DCMAKE_DISABLE_FIND_PACKAGE_Kokkos=ON"
 export CMAKE_CXX_FLAGS="-fno-tree-vectorize -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
 export HIGHWAY_OPTIONS="-DHWY_COMPILE_ONLY_SCALAR=1"
@@ -24,6 +24,12 @@ cmake -S . -B build -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS $HIGHWAY_OPTIONS" $KOKKO
 cmake --build build -j
 
 # Run
-time ./build/main_serial 20
-time ./build/main_kokkos 20
-time ./build/main_hw 20
+echo 
+echo SERIAL
+./build/main_serial 20
+echo 
+echo KOKKOS
+./build/main_kokkos 20
+echo
+echo HIGHWAY
+./build/main_hw 20
