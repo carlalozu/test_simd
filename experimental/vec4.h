@@ -16,11 +16,20 @@
 
 namespace Complex = Kokkos;
 
-template <typename T> struct Vec4_T {
+/**
+ * Vec4_T
+ *
+ * Use Vec4 without deriving from std::array
+ * This seemed to give a speedup but was deemed not necessary
+ * when unrolling the kernels completely.
+ */
+template <typename T>
+struct Vec4_T
+{
 
   T e, px, py, pz;
 
-  KOKKOS_INLINE_FUNCTION Vec4_T() : e(0), px(0), py(0), pz(0){};
+  KOKKOS_INLINE_FUNCTION Vec4_T() : e(0), px(0), py(0), pz(0) {};
   KOKKOS_INLINE_FUNCTION Vec4_T(T _e, T _px, T _py, T _pz)
   {
     e = _e;
@@ -35,7 +44,7 @@ template <typename T> struct Vec4_T {
   KOKKOS_FUNCTION
   T signed_abs() const
   {
-    const T _abs2 {abs2()};
+    const T _abs2{abs2()};
     return (_abs2 < 0.0 ? -1.0 : 1.0) * Kokkos::sqrt(Kokkos::abs(_abs2));
   };
   KOKKOS_INLINE_FUNCTION
@@ -88,7 +97,7 @@ template <typename T> struct Vec4_T {
     return {-e, -px, -py, -pz};
   }
   KOKKOS_INLINE_FUNCTION
-  Vec4_T& operator+=(const Vec4_T& rhs)
+  Vec4_T &operator+=(const Vec4_T &rhs)
   {
     e += rhs.e;
     px += rhs.px;
@@ -97,7 +106,7 @@ template <typename T> struct Vec4_T {
     return *this;
   }
   KOKKOS_INLINE_FUNCTION
-  Vec4_T& operator-=(const Vec4_T& rhs)
+  Vec4_T &operator-=(const Vec4_T &rhs)
   {
     e -= rhs.e;
     px -= rhs.px;
@@ -106,7 +115,7 @@ template <typename T> struct Vec4_T {
     return *this;
   }
   KOKKOS_INLINE_FUNCTION
-  Vec4_T& operator*=(T rhs)
+  Vec4_T &operator*=(T rhs)
   {
     e *= rhs;
     px *= rhs;
@@ -115,7 +124,7 @@ template <typename T> struct Vec4_T {
     return *this;
   }
   KOKKOS_INLINE_FUNCTION
-  Vec4_T& operator+=(T rhs)
+  Vec4_T &operator+=(T rhs)
   {
     e += rhs;
     px += rhs;
@@ -142,22 +151,22 @@ template <typename T> struct Vec4_T {
   }
 
   // binary vector ops
-  KOKKOS_INLINE_FUNCTION friend Vec4_T operator+(Vec4_T lhs, const Vec4_T& rhs)
+  KOKKOS_INLINE_FUNCTION friend Vec4_T operator+(Vec4_T lhs, const Vec4_T &rhs)
   {
     return lhs += rhs;
   }
-  KOKKOS_INLINE_FUNCTION friend Vec4_T operator-(Vec4_T lhs, const Vec4_T& rhs)
+  KOKKOS_INLINE_FUNCTION friend Vec4_T operator-(Vec4_T lhs, const Vec4_T &rhs)
   {
     return lhs -= rhs;
   }
   KOKKOS_INLINE_FUNCTION
-  friend T operator*(const Vec4_T& lhs, const Vec4_T& rhs)
+  friend T operator*(const Vec4_T &lhs, const Vec4_T &rhs)
   {
     return lhs.e * rhs.e - lhs.px * rhs.px - lhs.py * rhs.py -
            lhs.pz * rhs.pz;
   };
 
-  friend std::ostream& operator<<(std::ostream& o, const Vec4_T& v)
+  friend std::ostream &operator<<(std::ostream &o, const Vec4_T &v)
   {
     return o << "(" << v.e << ", " << v.px << ", " << v.py << ", " << v.pz
              << ")";

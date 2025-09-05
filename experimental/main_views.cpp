@@ -11,6 +11,12 @@
 using simd_double = Kokkos::Experimental::simd<double>;
 using SimdView = Kokkos::View<simd_double *, Kokkos::DefaultExecutionSpace>;
 
+/**
+ * Main program
+ *
+ * This was a tentative code to see how to convert arrays of doubles
+ * into arrays of simd values. It doesn't work yet.
+ */
 int main(int argc, char *argv[])
 {
 #if defined(KOKKOS_ARCH_AVX512XEON)
@@ -26,7 +32,7 @@ int main(int argc, char *argv[])
         int p = 3;
         if (argc > 1)
             p = std::atoi(argv[1]);
-        
+
         long int n = 1 << p;
         std::cout << "Total elements: 2^" << p << ": " << n << std::endl;
         Kokkos::View<double *> a_view("a_view", n);
@@ -47,8 +53,9 @@ int main(int argc, char *argv[])
         int LANES = simd_double::size();
         const int num_groups = n / LANES;
         int remaining = n % LANES;
-        if (LANES == 1){
-            LANES = 0; // no SIMD, all elements to be processed in serial mode
+        if (LANES == 1)
+        {
+            LANES = 0;     // no SIMD, all elements to be processed in serial mode
             remaining = n; // all elements to be processed in serial mode
         }
 
@@ -64,8 +71,7 @@ int main(int argc, char *argv[])
             SimdView c_simd(SimdView(reinterpret_cast<simd_double *>(b_view.data())));
 
             // time it
-            Kokkos::parallel_for("simd_operations", num_groups * LANES, KOKKOS_LAMBDA(int i) {
-            c_simd[i] = a_simd[i] + b_simd[i]; });
+            Kokkos::parallel_for("simd_operations", num_groups * LANES, KOKKOS_LAMBDA(int i) { c_simd[i] = a_simd[i] + b_simd[i]; });
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> duration = end - start;
             std::cout << "Time taken for SIMD loop: " << duration.count() << " seconds" << std::endl;
