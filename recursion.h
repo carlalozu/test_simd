@@ -281,52 +281,52 @@ KOKKOS_INLINE_FUNCTION void evaluate_ggg_vertex_kernel_unrolled(const Evt& evt, 
 
 KOKKOS_INLINE_FUNCTION void evaluate_ggg_vertex_kernel_highway(const Evt& evt, int i)
 {
-  const HWY_FULL(double) full;
-  using V = hn::Vec<decltype(full)>;
+    const hn::ScalableTag<double> d;
+    using V = hn::Vec<decltype(d)>;
     // CVec4 ja {evt.internal_c(i)};
-    const V ja0_real = hn::Load(full, &evt._c0r(i));
-    const V ja1_real = hn::Load(full, &evt._c1r(i));
-    const V ja2_real = hn::Load(full, &evt._c2r(i));
-    const V ja3_real = hn::Load(full, &evt._c3r(i));
+    const V ja0_real = hn::Load(d, &evt._c0r(i));
+    const V ja1_real = hn::Load(d, &evt._c1r(i));
+    const V ja2_real = hn::Load(d, &evt._c2r(i));
+    const V ja3_real = hn::Load(d, &evt._c3r(i));
     
-    const V ja0_imag = hn::Load(full, &evt._c0i(i));
-    const V ja1_imag = hn::Load(full, &evt._c1i(i));
-    const V ja2_imag = hn::Load(full, &evt._c2i(i));
-    const V ja3_imag = hn::Load(full, &evt._c3i(i));
+    const V ja0_imag = hn::Load(d, &evt._c0i(i));
+    const V ja1_imag = hn::Load(d, &evt._c1i(i));
+    const V ja2_imag = hn::Load(d, &evt._c2i(i));
+    const V ja3_imag = hn::Load(d, &evt._c3i(i));
     
     // CVec4 jb {evt.internal_c(i+8)};
-    const V jb0_real = hn::Load(full, &evt._c0r(i+8));
-    const V jb1_real = hn::Load(full, &evt._c1r(i+8));
-    const V jb2_real = hn::Load(full, &evt._c2r(i+8));
-    const V jb3_real = hn::Load(full, &evt._c3r(i+8));
+    const V jb0_real = hn::Load(d, &evt._c0r(i+8));
+    const V jb1_real = hn::Load(d, &evt._c1r(i+8));
+    const V jb2_real = hn::Load(d, &evt._c2r(i+8));
+    const V jb3_real = hn::Load(d, &evt._c3r(i+8));
     
-    const V jb0_imag = hn::Load(full, &evt._c0i(i+8));
-    const V jb1_imag = hn::Load(full, &evt._c1i(i+8));
-    const V jb2_imag = hn::Load(full, &evt._c2i(i+8));
-    const V jb3_imag = hn::Load(full, &evt._c3i(i+8));
+    const V jb0_imag = hn::Load(d, &evt._c0i(i+8));
+    const V jb1_imag = hn::Load(d, &evt._c1i(i+8));
+    const V jb2_imag = hn::Load(d, &evt._c2i(i+8));
+    const V jb3_imag = hn::Load(d, &evt._c3i(i+8));
 
     // CVec4SIMD jd {evt.internal_c(i+16, tag)};
-    V jd0_real = hn::Load(full, &evt._c0r(i+16));
-    V jd1_real = hn::Load(full, &evt._c1r(i+16));
-    V jd2_real = hn::Load(full, &evt._c2r(i+16));
-    V jd3_real = hn::Load(full, &evt._c3r(i+16));
+    V jd0_real = hn::Load(d, &evt._c0r(i+16));
+    V jd1_real = hn::Load(d, &evt._c1r(i+16));
+    V jd2_real = hn::Load(d, &evt._c2r(i+16));
+    V jd3_real = hn::Load(d, &evt._c3r(i+16));
     
-    V jd0_imag = hn::Load(full, &evt._c0i(i+16));
-    V jd1_imag = hn::Load(full, &evt._c1i(i+16));
-    V jd2_imag = hn::Load(full, &evt._c2i(i+16));
-    V jd3_imag = hn::Load(full, &evt._c3i(i+16));
+    V jd0_imag = hn::Load(d, &evt._c0i(i+16));
+    V jd1_imag = hn::Load(d, &evt._c1i(i+16));
+    V jd2_imag = hn::Load(d, &evt._c2i(i+16));
+    V jd3_imag = hn::Load(d, &evt._c3i(i+16));
 
     // Vec4 pa {evt.internal_p(i)};
-    const V pa0 = hn::Load(full, &evt.e(i));
-    const V pa1 = hn::Load(full, &evt.px(i));
-    const V pa2 = hn::Load(full, &evt.py(i));
-    const V pa3 = hn::Load(full, &evt.pz(i));
+    const V pa0 = hn::Load(d, &evt.e(i));
+    const V pa1 = hn::Load(d, &evt.px(i));
+    const V pa2 = hn::Load(d, &evt.py(i));
+    const V pa3 = hn::Load(d, &evt.pz(i));
     
     // Vec4 pb {evt.internal_p(i+8)};
-    const V pb0 = hn::Load(full, &evt.e(i+8));
-    const V pb1 = hn::Load(full, &evt.px(i+8));
-    const V pb2 = hn::Load(full, &evt.py(i+8));
-    const V pb3 = hn::Load(full, &evt.pz(i+8));
+    const V pb0 = hn::Load(d, &evt.e(i+8));
+    const V pb1 = hn::Load(d, &evt.px(i+8));
+    const V pb2 = hn::Load(d, &evt.py(i+8));
+    const V pb3 = hn::Load(d, &evt.pz(i+8));
 
     // add (ja * (pb + pab)) * jb
     const V pr1 = ja0_real * (pa0 + pb0 + pb0) - ja1_real * (pa1 + pb1 + pb1) -
@@ -384,13 +384,13 @@ KOKKOS_INLINE_FUNCTION void evaluate_ggg_vertex_kernel_highway(const Evt& evt, i
     jd3_imag -= pi3 * (pa3 - pb3);
 
     // evt.set_internal_c(i, jd, tag);
-    hn::Store(jd0_real, full, &evt._c0r(i));
-    hn::Store(jd1_real, full, &evt._c1r(i));
-    hn::Store(jd2_real, full, &evt._c2r(i));
-    hn::Store(jd3_real, full, &evt._c3r(i));
+    hn::Store(jd0_real, d, &evt._c0r(i));
+    hn::Store(jd1_real, d, &evt._c1r(i));
+    hn::Store(jd2_real, d, &evt._c2r(i));
+    hn::Store(jd3_real, d, &evt._c3r(i));
     
-    hn::Store(jd0_imag, full, &evt._c0i(i));
-    hn::Store(jd1_imag, full, &evt._c1i(i));
-    hn::Store(jd2_imag, full, &evt._c2i(i));
-    hn::Store(jd3_imag, full, &evt._c3i(i));
+    hn::Store(jd0_imag, d, &evt._c0i(i));
+    hn::Store(jd1_imag, d, &evt._c1i(i));
+    hn::Store(jd2_imag, d, &evt._c2i(i));
+    hn::Store(jd3_imag, d, &evt._c3i(i));
 };

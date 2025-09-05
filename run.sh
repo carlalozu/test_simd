@@ -9,11 +9,13 @@ export HIGHWAY_OPTIONS="-DHWY_COMPILE_ONLY_SCALAR=1"
 
 # # AVX2
 # export KOKKOS_OPTIONS="-DKOKKOS_ARCH_AVX2=ON -DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Kokkos=ON"
-# export CMAKE_CXX_FLAGS="-mavx2 -mno-avx512f -mno-avx512cd -mno-avx512er -mno-avx512pf -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
+# export CMAKE_CXX_FLAGS="-march=native -mavx2 -mno-avx512f -mno-avx512cd -mno-avx512er -mno-avx512pf -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
+# export HIGHWAY_OPTIONS=""
 
 # # AVX512
 # export KOKKOS_OPTIONS="-DKOKKOS_ARCH_AVX512XEON=ON -DKokkos_ENABLE_AGGRESSIVE_VECTORIZATION=OFF"
-# export CMAKE_CXX_FLAGS="-mavx512f -mavx512cd -mavx512er -mavx512pf -mavx512dq -mavx512bw -mavx512vl -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
+# export CMAKE_CXX_FLAGS="-march=native -mavx512f -mavx512cd -mavx512er -mavx512pf -mavx512dq -mavx512bw -mavx512vl -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
+# export HIGHWAY_OPTIONS=""
 
 
 # Compile
