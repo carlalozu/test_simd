@@ -8,7 +8,7 @@ else()
     message(STATUS "Kokkos not found externally. Fetching via FetchContent.")
     FetchContent_Declare(
         Kokkos
-        SOURCE_DIR      "/Users/carla/cernbox/kokkos-4.6.01"
+        URL      https://github.com/kokkos/kokkos/releases/download/4.6.01/kokkos-4.6.01.tar.gz
     )
     FetchContent_MakeAvailable(Kokkos)
     message(STATUS "Kokkos_DIR: ${Kokkos_DIR}") 

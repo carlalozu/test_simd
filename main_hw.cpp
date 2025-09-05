@@ -47,22 +47,25 @@ int main(int argc, char *argv[])
         std::cout << "Time taken for filling arrays: " << duration_init.count() << " seconds" << std::endl;
         Kokkos::fence();
 
-        const int reps = 5;
-
+        const hn::ScalableTag<float> d;
         int LANES = Lanes(d);
         const int num_groups = n / LANES;
         int remaining = n % LANES;
+        // assert that remining is zero for now
+        if (remaining != 0)
+        {
+            std::cout << "Error: number of elements must be multiple of the SIMD width for now: " << LANES << std::endl;
+            return -1;
+        }
+
 
         if (num_groups > 0)
         {
             std::cout << "SIMD groups: " << num_groups << std::endl;
-            std::cout << "Remaining elements: " << remaining << std::endl;
-            tag_type tag{};
 
             const hn::ScalableTag<uint64_t> d;
             std::cout << "Running SIMD operations with " << Lanes(d) << " lanes." << std::endl;
 
-            // time it
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
             for(int i=0;i<reps;i++){
                 evt.reset_arrays();
@@ -78,25 +81,7 @@ int main(int argc, char *argv[])
             std::cout << "Time taken for SIMD loop: " << duration.count()/reps << " seconds" << std::endl;
             Kokkos::fence();
         }
-        if (remaining > 0) // TODO: check if necessary
-        {
-            std::cout << "Processing " << remaining << " serial elements not unrolled." << std::endl;
-            // Handle remaining elements if any
-            std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
-            for(int i=0;i<reps;i++){
-                evt.reset_arrays();
-                auto start = std::chrono::high_resolution_clock::now();
-                for (size_t idx = 0; idx < n; idx ++){
-                    evaluate_ggg_vertex_kernel_unrolled_single_value(evt, idx);
-                };
-                Kokkos::fence();
-                auto end = std::chrono::high_resolution_clock::now();
-                duration = duration + (end - start);
-                std::cout << "Completed repetition: " << i << std::endl;
-            }   
-            std::cout << "Time taken for serial loop: " << duration.count()/reps << " seconds" << std::endl;
-            Kokkos::fence();
-        }
+
         // Print some results
         std::cout << "Array results (last 16): ";
         for (int i = 0; i < 16; ++i)
