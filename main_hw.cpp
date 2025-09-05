@@ -61,8 +61,6 @@ int main(int argc, char *argv[])
         if (num_groups > 0)
         {
             std::cout << "SIMD groups: " << num_groups << std::endl;
-
-            const hn::ScalableTag<uint64_t> d;
             std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
 
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
