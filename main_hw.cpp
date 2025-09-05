@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         std::cout << "Time taken for filling arrays: " << duration_init.count() << " seconds" << std::endl;
         Kokkos::fence();
 
-        const hn::ScalableTag<float> d;
+        const hn::ScalableTag<double> d;
         int LANES = Lanes(d);
         const int num_groups = n / LANES;
         int remaining = n % LANES;
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
             std::cout << "SIMD groups: " << num_groups << std::endl;
 
             const hn::ScalableTag<uint64_t> d;
-            std::cout << "Running SIMD operations with " << Lanes(d) << " lanes." << std::endl;
+            std::cout << "Running SIMD operations with " << LANES << " lanes." << std::endl;
 
             std::chrono::duration<double> duration = std::chrono::duration<double>::zero();
             for (int i = 0; i < reps; i++)
